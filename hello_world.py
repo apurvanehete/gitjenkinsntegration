@@ -95,6 +95,6 @@ if __name__ == "__main__":
     tests_to_fail_range = list(map(int, args.tests_to_fail_range.split(',')))
     generate_test_results(total_test_count, total_stage_count, tests_to_fail_range[0], tests_to_fail_range[1])
 	
-	for test_case in range(1, total_test_count + 1):
+    for test_case in range(1, total_test_count + 1):
         print(f"{jenkins_url}/job/job_name/ws/out/tests/{test_case}/PASS.txt")
         print(f"{jenkins_url}/job/job_name/ws/out/tests/{test_case}/FAIL.txt")
