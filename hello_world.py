@@ -2,7 +2,7 @@
 # This code will randomly select no. of test cases to fail between tests_to_fail_start & tests_to_fail_end range
 # python3 dummy_test_result_generation_script.py --total_test_count 5 --total_stage_count 6 --tests_to_fail_range 0,4
 # Below code will additionally throw error msg if range given is greater than. no of test_cases
-import os
+
 import argparse
 import random
 
@@ -61,25 +61,6 @@ def generate_test_results(total_test_count, total_stage_count, tests_to_fail_sta
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
         print(f"{test_case}: {final_result}")
 
-    # Create out/tests directory
-    tests_dir = os.path.join('out', 'tests')
-    os.makedirs(tests_dir, exist_ok=True)
-
-    # Generate PASS.txt or FAIL.txt for each test case
-    for test_case in test_cases:
-        test_result_file = os.path.join(tests_dir, test_case, 'PASS.txt' if results['Result'][0] == 'PASS' else 'FAIL.txt')
-        os.makedirs(os.path.dirname(test_result_file), exist_ok=True)
-        with open(test_result_file, 'w') as result_file:
-            result_file.write(f"Test Case: {test_case}\n\n")
-            for stage, result in zip(results['Stage'], results['Result']):
-                result_file.write(f"({result}) : {stage}\n")
-                if result == 'PASS':
-                    result_file.write(f"{stage} has Passed Successfully..!!\n")
-                elif result == 'FAIL':
-                    result_file.write(f"{stage} has FAILED..!!\n")
-                    break
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate detailed dummy test results.')
     parser.add_argument('--total_test_count', type=int, help='Total number of test cases')
@@ -90,11 +71,6 @@ if __name__ == "__main__":
 
     total_test_count = args.total_test_count
     total_stage_count = args.total_stage_count
-    jenkins_url = "http://localhost:8080"
 
     tests_to_fail_range = list(map(int, args.tests_to_fail_range.split(',')))
     generate_test_results(total_test_count, total_stage_count, tests_to_fail_range[0], tests_to_fail_range[1])
-	
-    for test_case in range(1, total_test_count + 1):
-        print(f"{jenkins_url}/job/job_name/ws/out/tests/{test_case}/PASS.txt")
-        print(f"{jenkins_url}/job/job_name/ws/out/tests/{test_case}/FAIL.txt")
