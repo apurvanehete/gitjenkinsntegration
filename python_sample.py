@@ -81,12 +81,12 @@ def create_jenkins_artifacts(test_cases, results, test_stages):
             for i, stage in enumerate(test_stages):
                 if results['Test Case'][i] == test_case:
                     if results['Result'][i] == 'PASS':
-                        result_file.write(f"Pass : {results['Stage'][i]}\n")
+                        result_file.write(f"(PASS) : {results['Stage'][i]}\n")
+                        result_file.write(f"Stage{results['Stage'][i]} has Passed successfully..!!\n")
                     elif results['Result'][i] == 'FAIL':
                         result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
                         result_file.write(f"Stage{results['Stage'][i]} has FAILED..!!\n")
                     elif results['Result'][i] == 'NOT_RUN':
-                        # You can choose to handle NOT_RUN differently if needed
                         pass
 
 if __name__ == "__main__":
