@@ -64,30 +64,28 @@ def generate_test_results(total_test_count, total_stage_count, tests_to_fail_sta
     create_jenkins_artifacts(test_cases, results, test_stages)
 
 JENKINS_URL = "http://172.17.0.84:8080"
-
 def create_jenkins_artifacts(test_cases, results, test_stages):
     for test_case in test_cases:
         test_dir = os.path.join('out', 'tests', test_case)
         os.makedirs(test_dir, exist_ok=True)
 
-    for test_case in test_cases:
         test_result = set(results['Result'][i] for i in range(len(results['Test Case'])) if results['Test Case'][i] == test_case)
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
 
-        result_file_path = os.path.join('out', 'tests', test_case, f'{final_result}.txt')
+        result_file_path = os.path.join(test_dir, f'{final_result}.txt')
         with open(result_file_path, 'w') as result_file:
-            result_file.write(f"{test_case}: {final_result}\n")
-
             for i, stage in enumerate(test_stages):
-                if results['Test Case'][i] == test_case:
-                    if results['Result'][i] == 'PASS':
-                        result_file.write(f"(PASS) : {results['Stage'][i]}\n")
-                        result_file.write(f"Stage{results['Stage'][i]} has Passed successfully..!!\n")
-                    elif results['Result'][i] == 'FAIL':
-                        result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
-                        result_file.write(f"Stage{results['Stage'][i]} has FAILED..!!\n")
-                    elif results['Result'][i] == 'NOT_RUN':
-                        pass
+                stage_result = results['Result'][i]
+                result_file.write(f"({stage_result}) : {stage}\n")
+                if stage_result == 'FAIL':
+                    result_file.write(f"{stage} has Failed..!!\n")
+                elif stage_result == 'PASS':
+                    result_file.write(f"{stage} has Passed Successfully..!!\n")
+
+        cfg_file_path = os.path.join(test_dir, f'{test_case}.cfg')
+        with open(cfg_file_path, 'w') as cfg_file:
+            cfg_file.write(f"Test Name={test_case}\n")
+            cfg_file.write(f"Result={final_result}\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate detailed dummy test results.')
