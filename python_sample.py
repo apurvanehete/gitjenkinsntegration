@@ -73,21 +73,23 @@ def create_jenkins_artifacts(test_cases, results, test_stages):
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
 
         result_file_path = os.path.join(test_dir, f'{final_result}.txt')
-        log_file_path = os.path.join(test_dir, 'test.log')
 
-        with open(result_file_path, 'w') as result_file, open(log_file_path, 'w') as log_file:
+        with open(result_file_path, 'w') as result_file:
             for i in range(len(results['Test Case'])):
                 if results['Test Case'][i] == test_case:
                     stage_result = results['Result'][i]
                     stage_name = results['Stage'][i]
-                    result_file.write(f"({stage_result}) : {stage_name}\n")
-                    log_file.write(f"Log entry for {stage_name}\n")
-                    if stage_result == 'FAIL':
-                        result_file.write(f"{stage_name} has Failed..!!\n")
-                        log_file.write(f"Failure details for {stage_name}\n")
-                    elif stage_result == 'PASS':
-                        result_file.write(f"{stage_name} has Passed Successfully..!!\n")
-                        log_file.write(f"Success details for {stage_name}\n")
+                    log_file_path = os.path.join(test_dir, f'{stage_name}.log')
+                    with open(log_file_path, 'w') as log_file:
+                        log_file.write(f"Log entry for {stage_name}\n")
+                        if stage_result == 'FAIL':
+                            result_file.write(f"({stage_result}) : {stage_name}\n")
+                            result_file.write(f"{stage_name} has Failed..!!\n")
+                            log_file.write(f"Failure details for {stage_name}\n")
+                        elif stage_result == 'PASS':
+                            result_file.write(f"({stage_result}) : {stage_name}\n")
+                            result_file.write(f"{stage_name} has Passed Successfully..!!\n")
+                            log_file.write(f"Success details for {stage_name}\n")
 
         cfg_file_path = os.path.join(test_dir, f'{test_case}.cfg')
         with open(cfg_file_path, 'w') as cfg_file:
