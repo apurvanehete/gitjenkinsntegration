@@ -76,6 +76,7 @@ def create_jenkins_artifacts(test_cases, results, test_stages):
         with open(result_file_path, 'w') as result_file:
             for i, stage in enumerate(test_stages):
                 stage_result = results['Result'][i]
+                print(stage, stage_result)
                 result_file.write(f"({stage_result}) : {stage}\n")
                 if stage_result == 'FAIL':
                     result_file.write(f"{stage} has Failed..!!\n")
