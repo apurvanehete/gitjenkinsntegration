@@ -60,27 +60,32 @@ def generate_test_results(total_test_count, total_stage_count, tests_to_fail_sta
         test_result = set(results['Result'][i] for i in range(len(results['Test Case'])) if results['Test Case'][i] == test_case)
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
         print(f"{test_case}: {final_result}")
+        
+    create_jenkins_artifacts(test_cases, results, test_stages)
 
+JENKINS_URL = "http://172.17.0.84:8080"
 
-def create_jenkins_artifacts(test_cases, results_folder):
+def create_jenkins_artifacts(test_cases, results, test_stages):
+    # Create Jenkins job artifacts directories for each test case
+    for test_case in test_cases:
+        test_dir = os.path.join('out', 'tests', test_case)
+        os.makedirs(test_dir, exist_ok=True)
+
+    # Check the final_result of each TestX and create PASS.txt or FAIL.txt files accordingly
     for test_case in test_cases:
         test_result = set(results['Result'][i] for i in range(len(results['Test Case'])) if results['Test Case'][i] == test_case)
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
-
-        # Create directory for each test case
-        test_dir = os.path.join(results_folder, f'Test{test_case[4:]}')
-        os.makedirs(test_dir, exist_ok=True)
-
-        # Create PASS.txt or FAIL.txt based on final result
-        result_file_path = os.path.join(test_dir, f'{final_result}.txt')
+       
+        result_file_path = os.path.join('out', 'tests', test_case, f'{final_result}.txt')
         with open(result_file_path, 'w') as result_file:
-            for stage in results['Stage']:
-                if final_result == 'PASS':
-                    result_file.write(f'(status_of_stage) : {stage}\nStage{stage[5:]} has Passed Successfully..!!\n')
-                elif final_result == 'FAIL':
-                    if results['Result'][results['Test Case'].index(test_case)] == 'FAIL':
-                        result_file.write(f'(status_of_stage) : {stage}\nStage{stage[5:]} has Failed..!!\n')
-                        break
+            result_file.write(f"{test_case}: {final_result}\n")
+
+            # Write stage status information for PASS.txt
+            if final_result == 'PASS':
+                for stage in test_stages:
+                    result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
+
+                result_file.write(f"Test {test_case} Passed Successfully..!!\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate detailed dummy test results.')
@@ -95,10 +100,4 @@ if __name__ == "__main__":
 
     tests_to_fail_range = list(map(int, args.tests_to_fail_range.split(',')))
 
-    # Generate test results
-    results = generate_test_results(total_test_count, total_stage_count, tests_to_fail_range[0], tests_to_fail_range[1])
-
-    # Jenkins artifacts creation
-    jenkins_url = "http://172.17.0.84:8080"
-    results_folder = "out/tests"
-    create_jenkins_artifacts([f"Test{i}" for i in range(1, total_test_count + 1)], results_folder)
+    generate_test_results(total_test_count, total_stage_count, tests_to_fail_range[0], tests_to_fail_range[1])
