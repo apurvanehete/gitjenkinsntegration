@@ -82,7 +82,7 @@ def create_jenkins_artifacts(test_cases, results, test_stages):
 
             # Write stage status information for PASS.txt
             if final_result == 'PASS':
-                for stage in test_stages:
+                for i, stage in enumerate(test_stages):
                     result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
 
                 result_file.write(f"Test {test_case} Passed Successfully..!!\n")
