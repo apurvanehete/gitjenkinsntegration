@@ -66,26 +66,28 @@ def generate_test_results(total_test_count, total_stage_count, tests_to_fail_sta
 JENKINS_URL = "http://172.17.0.84:8080"
 
 def create_jenkins_artifacts(test_cases, results, test_stages):
-    # Create Jenkins job artifacts directories for each test case
     for test_case in test_cases:
         test_dir = os.path.join('out', 'tests', test_case)
         os.makedirs(test_dir, exist_ok=True)
 
-    # Check the final_result of each TestX and create PASS.txt or FAIL.txt files accordingly
     for test_case in test_cases:
         test_result = set(results['Result'][i] for i in range(len(results['Test Case'])) if results['Test Case'][i] == test_case)
         final_result = 'FAIL' if 'FAIL' in test_result else 'PASS'
-       
+
         result_file_path = os.path.join('out', 'tests', test_case, f'{final_result}.txt')
         with open(result_file_path, 'w') as result_file:
             result_file.write(f"{test_case}: {final_result}\n")
 
-            # Write stage status information for PASS.txt
-            if final_result == 'PASS':
-                for i, stage in enumerate(test_stages):
-                    result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
-
-                result_file.write(f"Test {test_case} Passed Successfully..!!\n")
+            for i, stage in enumerate(test_stages):
+                if results['Test Case'][i] == test_case:
+                    if results['Result'][i] == 'PASS':
+                        result_file.write(f"Pass : {results['Stage'][i]}\n")
+                    elif results['Result'][i] == 'FAIL':
+                        result_file.write(f"({results['Result'][i]}) : {results['Stage'][i]}\n")
+                        result_file.write(f"Stage{results['Stage'][i]} has FAILED..!!\n")
+                    elif results['Result'][i] == 'NOT_RUN':
+                        # You can choose to handle NOT_RUN differently if needed
+                        pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate detailed dummy test results.')
